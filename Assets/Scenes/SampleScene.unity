@@ -163,7 +163,7 @@ Light:
     m_CustomResolution: -1
     m_Strength: 0.623
     m_Bias: 0.05
-    m_NormalBias: 0.4
+    m_NormalBias: 0
     m_NearPlane: 0.2
     m_CullingMatrixOverride:
       e00: 1
@@ -379,11 +379,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chunkSize: 8
-  maxWorldSize: 10
+  maxWorldSize: {x: 10, y: 4}
   isRunning: 0
   renderDistance: 2
-  grassMaterial: {fileID: 2100000, guid: fa313ed0c3d5d4549b04bc34e76c5201, type: 2}
-  dirtMaterial: {fileID: 2100000, guid: 421238dffcdfb604a89ac013b4edbb06, type: 2}
+  tilePresets:
+  - tile: 1
+    material: {fileID: 2100000, guid: fa313ed0c3d5d4549b04bc34e76c5201, type: 2}
+  - tile: 2
+    material: {fileID: 2100000, guid: 421238dffcdfb604a89ac013b4edbb06, type: 2}
+  - tile: 3
+    material: {fileID: 2100000, guid: b8d6c806f3479c24e9b23c093b0717fc, type: 2}
 --- !u!4 &1785618316
 Transform:
   m_ObjectHideFlags: 0

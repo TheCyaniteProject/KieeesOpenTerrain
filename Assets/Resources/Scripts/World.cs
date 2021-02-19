@@ -7,33 +7,37 @@ public class World : MonoBehaviour
 {
     public static World Instance;
     public int chunkSize = 16;
-    public int maxWorldSize = 2; // in chunks
+    public Vector2 maxWorldSize = new Vector2(3, 3); // in chunks
     public Chunk[,,] chunks;
     public bool isRunning = false;
     public int renderDistance = 2; // TODO ----------
 
-    public Material grassMaterial;
-    public Material dirtMaterial;
+    public TilePreset[] tilePresets;
+
+    public enum Tiles { // Add new tiles here
+        Empty, // Air
+        Grass,
+        Dirt,
+        Stone
+    }
+
+    [System.Serializable]
+    public class TilePreset
+    {
+        public World.Tiles tile;
+        public Material material;
+    }
 
     void Awake()
     {
         Instance = this;
-        chunks = new Chunk[maxWorldSize, maxWorldSize, maxWorldSize];
-    }
-
-    public enum Tiles {
-        Empty,
-        Grass,
-        Dirt,
-        Stone
+        chunks = new Chunk[(int)maxWorldSize.x, (int)maxWorldSize.y, (int)maxWorldSize.x];
     }
 
     private void OnEnable()
     {
         if (Instance == null)
             Instance = this;
-        if (chunks == null)
-            chunks = new Chunk[maxWorldSize, maxWorldSize, maxWorldSize];
         if (!isRunning)
             StartCoroutine(Generate());
     }
@@ -43,11 +47,11 @@ public class World : MonoBehaviour
         isRunning = true;
         ClearChunks();
 
-        for (int x = 0; x <= maxWorldSize - 1; x++)
+        for (int x = 0; x <= (int)maxWorldSize.x - 1; x++)
         {
-            for (int y = 0; y <= maxWorldSize - 1; y++)
+            for (int y = 0; y <= (int)maxWorldSize.y - 1; y++)
             {
-                for (int z = 0; z <= maxWorldSize - 1; z++)
+                for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
                 {
                     GameObject chunk = new GameObject();
                     chunk.name = "Chunk";
@@ -63,13 +67,14 @@ public class World : MonoBehaviour
             }
         }
 
-        for (int x = 0; x <= maxWorldSize - 1; x++)
+        for (int x = 0; x <= (int)maxWorldSize.x - 1; x++)
         {
-            for (int y = 0; y <= maxWorldSize - 1; y++)
+            for (int y = 0; y <= (int)maxWorldSize.y - 1; y++)
             {
-                for (int z = 0; z <= maxWorldSize - 1; z++)
+                for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
                 {
-                    chunks[x, y, z].SetNeedsLiteUpdate();
+                    if (!chunks[x, y, z].isEmpty)
+                        chunks[x, y, z].SetNeedsLiteUpdate();
                     yield return null;
                 }
             }

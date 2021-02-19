@@ -15,31 +15,27 @@ public class Chunk : MonoBehaviour
 
     public int[] position;
 
+    public bool isEmpty = true;
+
     public bool needsUpdate = false;
     public bool needsLiteUpdate = false;
 
-    private GameObject grassLayer;
-    private GameObject dirtLayer;
+    private Dictionary<World.Tiles, GameObject> layers = new Dictionary<World.Tiles, GameObject>();
 
     private void Start()
     {
-        grassLayer = new GameObject();
-        grassLayer.transform.SetParent(transform);
-        grassLayer.transform.localPosition = Vector3.zero;
-        grassLayer.AddComponent<MeshFilter>();
-        grassLayer.AddComponent<MeshRenderer>();
-        grassLayer.AddComponent<MeshCollider>();
-        grassLayer.GetComponent<Renderer>().material = World.Instance.grassMaterial;
-        grassLayer.name = "GrassLayer";
-
-        dirtLayer = new GameObject();
-        dirtLayer.transform.SetParent(transform);
-        dirtLayer.transform.localPosition = Vector3.zero;
-        dirtLayer.AddComponent<MeshFilter>();
-        dirtLayer.AddComponent<MeshRenderer>();
-        dirtLayer.AddComponent<MeshCollider>();
-        dirtLayer.GetComponent<Renderer>().material = World.Instance.dirtMaterial;
-        dirtLayer.name = "DirtLayer";
+        foreach (World.TilePreset tilePreset in World.Instance.tilePresets)
+        {
+            GameObject layer = new GameObject();
+            layers[tilePreset.tile] = layer;
+            layer.gameObject.transform.SetParent(transform);
+            layer.gameObject.transform.localPosition = Vector3.zero;
+            layer.gameObject.AddComponent<MeshFilter>();
+            layer.gameObject.AddComponent<MeshRenderer>();
+            layer.gameObject.AddComponent<MeshCollider>();
+            layer.gameObject.GetComponent<Renderer>().material = tilePreset.material;
+            layer.gameObject.name = tilePreset.tile.ToString();
+        }
     }
 
     private void Update()
@@ -63,7 +59,9 @@ public class Chunk : MonoBehaviour
 
         // Terrain Generation code
 
-        float thresh = 0.45f;
+        float thresh = 0.35f;
+
+        int topLevel = 25;
 
         for (int x = 0; x <= size - 1; x++)
         {
@@ -71,19 +69,29 @@ public class Chunk : MonoBehaviour
             {
                 for (int z = 0; z <= size - 1; z++)
                 {
-                    float value = WorldGen.Noise3D(tiles[x, y, z].position);
-                    bool hasTile = value > thresh;
-                    //Debug.Log(tiles[x, y, z].position[0] + ", " + tiles[x, y, z].position[1] + ", " + tiles[x, y, z].position[2]);
-                    //Debug.Log(value);
-                    if (hasTile)
+                    int[] position = tiles[x, y, z].position;
+                    float caves = WorldGen.Noise3D(position[0], position[1], position[2], 15f, 0);
+                    bool removeTile = caves < thresh;
+
+                    float surfaceHeight = WorldGen.Noise(position[0], position[2], 45f, 0f);
+                    if (tiles[x, y, z].position[1] == topLevel + (int)(surfaceHeight * 10))
                     {
-                        if (tiles[x, y, z].position[1] == 20)
+                        tiles[x, y, z].type = World.Tiles.Grass;
+                        this.isEmpty = false;
+                    } else if (tiles[x, y, z].position[1] < topLevel + (int)(surfaceHeight * 10) && tiles[x, y, z].position[1] >= topLevel + (int)(surfaceHeight * 10) - 3)
+                    {
+                        tiles[x, y, z].type = World.Tiles.Dirt;
+                        this.isEmpty = false;
+                    } else if (tiles[x, y, z].position[1] < topLevel + (int)(surfaceHeight * 10) - 3)
+                    {
+                        tiles[x, y, z].type = World.Tiles.Stone;
+                        this.isEmpty = false;
+                    }
+                    if (removeTile)
+                    {
+                        if (tiles[x, y, z].position[1] < topLevel + (int)(surfaceHeight * 10) - 3 && tiles[x, y, z].position[1] > 1 + (int)(surfaceHeight * 9.64 ))
                         {
-                            tiles[x, y, z].type = World.Tiles.Grass;
-                        }
-                        else if (tiles[x, y, z].position[1] < 20)
-                        {
-                            tiles[x, y, z].type = World.Tiles.Dirt;
+                            tiles[x, y, z].type = World.Tiles.Empty;
                         }
                     }
                 }
@@ -160,9 +168,12 @@ public class Chunk : MonoBehaviour
     {
         needsUpdate = false;
         //if (GetComponent<MeshFilter>().sharedMesh != null)
-            //DestroyImmediate(GetComponent<MeshFilter>().sharedMesh);
-        CombineInstance[] grassTiles = new CombineInstance[size*size*size];
-        CombineInstance[] dirtTiles = new CombineInstance[size*size*size];
+        //DestroyImmediate(GetComponent<MeshFilter>().sharedMesh);
+        Dictionary<World.Tiles, CombineInstance[]> combines = new Dictionary<World.Tiles, CombineInstance[]>();
+        foreach (World.Tiles tile in layers.Keys)
+        {
+            combines[tile] = new CombineInstance[size*size*size];
+        }
         int index = 0;
         for (int x = 0; x <= size-1; x++)
         {
@@ -175,34 +186,24 @@ public class Chunk : MonoBehaviour
                     tile.AddComponent<MeshFilter>();
                     tile.transform.position = new Vector3(x, y, z);
                     tile.GetComponent<MeshFilter>().sharedMesh = tiles[x, y, z].Render();
-                    switch(tiles[x, y, z].type)
-                    {
-                        case World.Tiles.Grass:
-                            grassTiles[index].mesh = tile.GetComponent<MeshFilter>().sharedMesh;
-                            grassTiles[index].transform = tile.transform.localToWorldMatrix;
-                            break;
-                        case World.Tiles.Dirt:
-                            dirtTiles[index].mesh = tile.GetComponent<MeshFilter>().sharedMesh;
-                            dirtTiles[index].transform = tile.transform.localToWorldMatrix;
-                            break;
-                    }
+                    
+                    combines[tiles[x, y, z].type][index].mesh = tile.GetComponent<MeshFilter>().sharedMesh;
+                    combines[tiles[x, y, z].type][index].transform = tile.transform.localToWorldMatrix;
+
                     DestroyImmediate(tile);
                     index++;
                 }
             }
         }
-
-
-        Mesh grassMesh = new Mesh();
-        // Throws overflow error if all tiles in a chunk render all of their sides
-        grassMesh.CombineMeshes(grassTiles);
-        grassLayer.GetComponent<MeshFilter>().sharedMesh = grassMesh;
-        grassLayer.GetComponent<MeshCollider>().sharedMesh = grassMesh;
-
-        Mesh dirtMesh = new Mesh();
-        dirtMesh.CombineMeshes(dirtTiles);
-        dirtLayer.GetComponent<MeshFilter>().sharedMesh = dirtMesh;
-        dirtLayer.GetComponent<MeshCollider>().sharedMesh = dirtMesh;
+        
+        foreach (World.Tiles layer in combines.Keys)
+        {
+            // Throws overflow error if all tiles in a chunk render all of their sides
+            Mesh layerMesh = new Mesh();
+            layerMesh.CombineMeshes(combines[layer]);
+            layers[layer].GetComponent<MeshFilter>().sharedMesh = layerMesh;
+            layers[layer].GetComponent<MeshCollider>().sharedMesh = layerMesh;
+        }
     }
 
     public Tile GetTile(Vector3 position) { return GetTile(new int[] { (int)position.x, (int)position.y, (int)position.z }); }

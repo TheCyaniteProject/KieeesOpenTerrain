@@ -4,18 +4,23 @@ using UnityEngine;
 
 public class WorldGen
 {
-    public static float Noise3D(int[] position)
+    public static float Noise3D(float x, float y, float z, float scale, float offset)
     {
-        float multiplier = 0.1f;
-        float xy = Mathf.PerlinNoise(position[0]* multiplier, position[1]* multiplier);
-        float yz = Mathf.PerlinNoise(position[1]* multiplier, position[2]* multiplier);
-        float xz = Mathf.PerlinNoise(position[0]* multiplier, position[2]* multiplier);
+        float xy = Noise(x, y, scale, offset);
+        float yz = Noise(y, z, scale, offset);
+        float xz = Noise(x, z, scale, offset);
 
-        float yx = Mathf.PerlinNoise(position[1]* multiplier, position[0]* multiplier);
-        float zy = Mathf.PerlinNoise(position[2], position[1]* multiplier);
-        float zx = Mathf.PerlinNoise(position[2]* multiplier, position[0]* multiplier);
+        float yx = Noise(y, x, scale, offset);
+        float zy = Noise(z, y, scale, offset);
+        float zx = Noise(z, x, scale, offset);
 
         float xyz = xy + yz + xz + yx + zy + zx;
         return xyz / 6f;
+    }
+
+    public static float Noise(float x, float y, float scale, float offset)
+    {
+        float staticOffset = 9999.9f;
+        return Mathf.PerlinNoise(x / scale + staticOffset + offset, y / scale + staticOffset + offset);
     }
 }
