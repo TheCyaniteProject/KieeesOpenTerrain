@@ -5,16 +5,22 @@ using UnityEngine;
 public class PointTool : MonoBehaviour
 {
     public int[] tilePosition;
+    private int[] _tilePosition;
     public int[] chunkPosition;
+    [Space]
     [SerializeField]
-    public Tile currentTile;
+    public World.Tiles currentTile;
 
     private World.Tiles type = World.Tiles.Empty;
-    private float[] heights = new float[] { 1, 0, 0, 0, 0 };
-    private int[] sides = new int[] { 0, 0, 0, 0, 0, 0 };
+
+    private void Start()
+    {
+        _tilePosition = new int[3];
+    }
 
     private void Update()
     {
+        if (World.Instance == null) return;
         this.tilePosition = new int[] { (int)transform.position.x, (int)transform.position.y, (int)transform.position.z };
         Chunk chunk = World.Instance.GetChunkFromWorldPosition(this.tilePosition);
 
@@ -23,12 +29,15 @@ public class PointTool : MonoBehaviour
             this.chunkPosition = World.Instance.GetChunkFromWorldPosition(this.tilePosition).position;
             if (World.Instance.GetChunkFromWorldPosition(this.tilePosition))
             {
-                int[] pos = World.Instance.GetPositionInChunk(this.tilePosition);
+                if (_tilePosition[0] != tilePosition[0] || _tilePosition[01] != tilePosition[1] || _tilePosition[2] != tilePosition[2])
+                {
+                    _tilePosition = tilePosition;
+                    byte chunkTile = World.Instance.GetChunkFromWorldPosition(this.tilePosition).GetTile(this.tilePosition);
+                    this.currentTile = (World.Tiles)chunkTile;
+                    this.type = currentTile;
+                }
 
-                Tile chunkTile = World.Instance.GetTile(this.tilePosition);
-                this.currentTile = chunkTile;
-
-                if (currentTile != null && (currentTile.heights != this.heights || currentTile.sides != this.sides || currentTile.type != this.type))
+                if (currentTile != this.type)
                 { // If any values have changed, update terrain
                     UpdateTile();
                 }
@@ -38,12 +47,11 @@ public class PointTool : MonoBehaviour
 
     void UpdateTile()
     {
-        if (currentTile != null)
+        if (World.Instance.GetChunkFromWorldPosition(this.tilePosition) != null)
         {
-            this.heights = currentTile.heights;
-            this.sides = currentTile.sides;
-            this.type = currentTile.type;
-            currentTile.SetNeedsUpdate();
+            this.type = currentTile;
+            World.Instance.GetChunkFromWorldPosition(this.tilePosition).SetTile(World.Instance.GetPositionInChunk(this.tilePosition), (byte)this.type);
+            World.Instance.GetChunkFromWorldPosition(this.tilePosition).SetNeedsUpdate();
         }
     }
 }

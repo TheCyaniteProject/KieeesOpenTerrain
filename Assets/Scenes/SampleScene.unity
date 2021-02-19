@@ -343,7 +343,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1701492838}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.604, y: 11.719, z: 5.82}
+  m_LocalPosition: {x: 4.559, y: 4.668, z: 4.431}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -373,13 +373,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1785618314}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2ebb608f9e87634398cac571acc2b1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   chunkSize: 8
-  maxWorldSize: {x: 10, y: 4}
+  maxWorldSize: {x: 3, y: 3}
   isRunning: 0
   renderDistance: 2
   tilePresets:
@@ -389,6 +389,8 @@ MonoBehaviour:
     material: {fileID: 2100000, guid: 421238dffcdfb604a89ac013b4edbb06, type: 2}
   - tile: 3
     material: {fileID: 2100000, guid: b8d6c806f3479c24e9b23c093b0717fc, type: 2}
+  worldPreset: 2
+  generate: 0
 --- !u!4 &1785618316
 Transform:
   m_ObjectHideFlags: 0
