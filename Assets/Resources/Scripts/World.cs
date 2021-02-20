@@ -133,7 +133,17 @@ public class World : MonoBehaviour
                         }
                     }
                     chunk.GetComponent<Chunk>().isEmpty = false;
-                    chunk.GetComponent<Chunk>().SetNeedsUpdate();
+                    yield return null;
+                }
+            }
+        }
+        for (int x = 0; x <= (int)maxWorldSize.x - 1; x++)
+        {
+            for (int y = 0; y <= (int)maxWorldSize.y - 1; y++)
+            {
+                for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
+                {
+                    chunks[x, y, z].SetNeedsLiteUpdate();
                     yield return null;
                 }
             }
@@ -174,7 +184,6 @@ public class World : MonoBehaviour
                         }
                     }
                     chunk.GetComponent<Chunk>().isEmpty = false;
-                    chunk.GetComponent<Chunk>().SetNeedsUpdate();
                     yield return null;
                 }
             }
@@ -185,7 +194,7 @@ public class World : MonoBehaviour
             {
                 for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
                 {
-                    chunks[x, y, z].SetNeedsUpdate();
+                    chunks[x, y, z].SetNeedsLiteUpdate();
                     yield return null;
                 }
             }
@@ -237,7 +246,7 @@ public class World : MonoBehaviour
             {
                 for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
                 {
-                    chunks[x, y, z].SetNeedsUpdate();
+                    chunks[x, y, z].SetNeedsLiteUpdate();
                     yield return null;
                 }
             }
@@ -265,7 +274,7 @@ public class World : MonoBehaviour
         chunk.GetComponent<Chunk>().tiles[(int)chunkSize / 2, (int)chunkSize / 2, (int)chunkSize / 2] = (byte)Tiles.Grass;
         chunk.GetComponent<Chunk>().isEmpty = false;
 
-        chunk.GetComponent<Chunk>().SetNeedsUpdate();
+        chunk.GetComponent<Chunk>().SetNeedsLiteUpdate();
 
         isRunning = false;
         yield return null;
@@ -332,7 +341,7 @@ public class World : MonoBehaviour
                 for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
                 {
                     if (!chunks[x, y, z].isEmpty)
-                        chunks[x, y, z].SetNeedsUpdate();
+                        chunks[x, y, z].SetNeedsLiteUpdate();
                     yield return null;
                 }
             }
