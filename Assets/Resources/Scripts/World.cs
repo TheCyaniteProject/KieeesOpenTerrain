@@ -23,6 +23,9 @@ public class World : MonoBehaviour
     { // Types of Generation (Mainly for testing)
         Empty,
         LoneGrassTile,
+        RandomTiles,
+        RandomFilledChunk,
+        StoneFilledChunk,
         Landscape
     }
 
@@ -84,7 +87,164 @@ public class World : MonoBehaviour
             {
                 StartCoroutine(GenerateSingleTile());
             }
+            else if (worldPreset == WorldTypes.StoneFilledChunk)
+            {
+                StartCoroutine(StoneFilledChunk());
+            }
+            else if (worldPreset == WorldTypes.RandomFilledChunk)
+            {
+                StartCoroutine(RandomFilledChunk());
+            }
+            else if (worldPreset == WorldTypes.RandomTiles)
+            {
+                StartCoroutine(RandomTiles());
+            }
         }
+    }
+
+    IEnumerator RandomTiles() // Generates the entire world.
+    {
+        isRunning = true;
+        ClearChunks();
+
+        for (int x = 0; x <= (int)maxWorldSize.x - 1; x++)
+        {
+            for (int y = 0; y <= (int)maxWorldSize.y - 1; y++)
+            {
+                for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
+                {
+                    GameObject chunk = new GameObject();
+                    chunk.name = "Chunk";
+                    chunk.transform.SetParent(transform);
+                    chunk.transform.localPosition = new Vector3((x) * chunkSize, (y) * chunkSize, (z) * chunkSize);
+                    chunk.AddComponent(typeof(Chunk));
+                    chunks[x, y, z] = chunk.GetComponent<Chunk>();
+                    chunks[x, y, z].size = chunkSize;
+                    chunks[x, y, z].position = new int[] { x, y, z };
+                    chunks[x, y, z].Populate();
+                    for (int x1 = 0; x1 <= chunkSize - 1; x1++)
+                    {
+                        for (int y1 = 0; y1 <= chunkSize - 1; y1++)
+                        {
+                            for (int z1 = 0; z1 <= chunkSize - 1; z1++)
+                            {
+                                chunk.GetComponent<Chunk>().tiles[x1, y1, z1] = (byte)Random.Range(0, tilePresets.Length + 1);
+                            }
+                        }
+                    }
+                    chunk.GetComponent<Chunk>().isEmpty = false;
+                    chunk.GetComponent<Chunk>().SetNeedsUpdate();
+                    yield return null;
+                }
+            }
+        }
+
+        isRunning = false;
+        yield return null;
+    }
+
+    IEnumerator RandomFilledChunk() // Generates the entire world.
+    {
+        isRunning = true;
+        ClearChunks();
+
+        for (int x = 0; x <= (int)maxWorldSize.x - 1; x++)
+        {
+            for (int y = 0; y <= (int)maxWorldSize.y - 1; y++)
+            {
+                for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
+                {
+                    GameObject chunk = new GameObject();
+                    chunk.name = "Chunk";
+                    chunk.transform.SetParent(transform);
+                    chunk.transform.localPosition = new Vector3((x) * chunkSize, (y) * chunkSize, (z) * chunkSize);
+                    chunk.AddComponent(typeof(Chunk));
+                    chunks[x, y, z] = chunk.GetComponent<Chunk>();
+                    chunks[x, y, z].size = chunkSize;
+                    chunks[x, y, z].position = new int[] { x, y, z };
+                    chunks[x, y, z].Populate();
+                    for (int x1 = 0; x1 <= chunkSize - 1; x1++)
+                    {
+                        for (int y1 = 0; y1 <= chunkSize - 1; y1++)
+                        {
+                            for (int z1 = 0; z1 <= chunkSize - 1; z1++)
+                            {
+                                chunk.GetComponent<Chunk>().tiles[x1, y1, z1] = (byte)Random.Range(1, tilePresets.Length + 1);
+                            }
+                        }
+                    }
+                    chunk.GetComponent<Chunk>().isEmpty = false;
+                    chunk.GetComponent<Chunk>().SetNeedsUpdate();
+                    yield return null;
+                }
+            }
+        }
+        for (int x = 0; x <= (int)maxWorldSize.x - 1; x++)
+        {
+            for (int y = 0; y <= (int)maxWorldSize.y - 1; y++)
+            {
+                for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
+                {
+                    chunks[x, y, z].SetNeedsUpdate();
+                    yield return null;
+                }
+            }
+        }
+
+        isRunning = false;
+        yield return null;
+    }
+
+    IEnumerator StoneFilledChunk() // Generates the entire world.
+    {
+        isRunning = true;
+        ClearChunks();
+
+        for (int x = 0; x <= (int)maxWorldSize.x - 1; x++)
+        {
+            for (int y = 0; y <= (int)maxWorldSize.y - 1; y++)
+            {
+                for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
+                {
+                    GameObject chunk = new GameObject();
+                    chunk.name = "Chunk";
+                    chunk.transform.SetParent(transform);
+                    chunk.transform.localPosition = new Vector3((x) * chunkSize, (y) * chunkSize, (z) * chunkSize);
+                    chunk.AddComponent(typeof(Chunk));
+                    chunks[x, y, z] = chunk.GetComponent<Chunk>();
+                    chunks[x, y, z].size = chunkSize;
+                    chunks[x, y, z].position = new int[] { x, y, z };
+                    chunks[x, y, z].Populate();
+                    for (int x1 = 0; x1 <= chunkSize - 1; x1++)
+                    {
+                        for (int y1 = 0; y1 <= chunkSize - 1; y1++)
+                        {
+                            for (int z1 = 0; z1 <= chunkSize - 1; z1++)
+                            {
+                                chunk.GetComponent<Chunk>().tiles[x1, y1, z1] = (byte)Tiles.Stone;
+                            }
+                        }
+                    }
+                    chunk.GetComponent<Chunk>().isEmpty = false;
+                    yield return null;
+                }
+            }
+        }
+
+        for (int x = 0; x <= (int)maxWorldSize.x - 1; x++)
+        {
+            for (int y = 0; y <= (int)maxWorldSize.y - 1; y++)
+            {
+                for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
+                {
+                    chunks[x, y, z].SetNeedsUpdate();
+                    yield return null;
+                }
+            }
+        }
+
+        isRunning = false;
+        yield return null;
     }
 
     IEnumerator GenerateSingleTile() // Generates the entire world.
@@ -105,7 +265,7 @@ public class World : MonoBehaviour
         chunk.GetComponent<Chunk>().tiles[(int)chunkSize / 2, (int)chunkSize / 2, (int)chunkSize / 2] = (byte)Tiles.Grass;
         chunk.GetComponent<Chunk>().isEmpty = false;
 
-        chunk.GetComponent<Chunk>().SetNeedsLiteUpdate();
+        chunk.GetComponent<Chunk>().SetNeedsUpdate();
 
         isRunning = false;
         yield return null;
@@ -172,7 +332,7 @@ public class World : MonoBehaviour
                 for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
                 {
                     if (!chunks[x, y, z].isEmpty)
-                        chunks[x, y, z].SetNeedsLiteUpdate();
+                        chunks[x, y, z].SetNeedsUpdate();
                     yield return null;
                 }
             }

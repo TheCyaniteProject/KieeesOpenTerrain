@@ -32,7 +32,7 @@ public class PointTool : MonoBehaviour
                 if (_tilePosition[0] != tilePosition[0] || _tilePosition[01] != tilePosition[1] || _tilePosition[2] != tilePosition[2])
                 {
                     _tilePosition = tilePosition;
-                    byte chunkTile = World.Instance.GetChunkFromWorldPosition(this.tilePosition).GetTile(this.tilePosition);
+                    byte chunkTile = World.Instance.GetChunkFromWorldPosition(this.tilePosition).GetTile(World.Instance.GetPositionInChunk(this.tilePosition));
                     this.currentTile = (World.Tiles)chunkTile;
                     this.type = currentTile;
                 }
@@ -42,6 +42,10 @@ public class PointTool : MonoBehaviour
                     UpdateTile();
                 }
             }
+        } else
+        {
+            currentTile = World.Tiles.Empty;
+            this.type = currentTile;
         }
     }
 

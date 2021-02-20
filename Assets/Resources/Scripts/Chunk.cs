@@ -15,7 +15,7 @@ public class Chunk : MonoBehaviour
 
     public int[] position;
 
-    public bool isEmpty = true;
+    public bool isEmpty = false;
 
     public bool needsUpdate = false;
     public bool needsLiteUpdate = false;
@@ -170,7 +170,7 @@ public class Chunk : MonoBehaviour
                 for (int z = 0; z <= size - 1; z++)
                 {
                     if (tiles[x, y, z] == (byte)World.Tiles.Empty) continue;
-                    Mesh tileMesh = Tile.Render(tiles[x, y, z], new int[] { x, y, z });
+                    Mesh tileMesh = Tile.Render(tiles[x, y, z], GetGlobalPosition(new int[] { x, y, z }));
                     if (tileMesh == null) continue;
 
                     GameObject tile = new GameObject();
@@ -198,7 +198,7 @@ public class Chunk : MonoBehaviour
     public byte GetTile(Vector3 position) { return GetTile(new int[] { (int)position.x, (int)position.y, (int)position.z }); }
     public byte GetTile(int[] position)
     {
-        if (!(position[0] < 0 || position[1] < 0 || position[2] < 0) && (position[0] < size - 1 || position[1] < size - 1 || position[2] < size - 1))
+        if (!(position[0] < 0 || position[1] < 0 || position[2] < 0) && (position[0] < size && position[1] < size && position[2] < size))
         {
             return tiles[position[0], position[1], position[2]];
         }
@@ -209,7 +209,7 @@ public class Chunk : MonoBehaviour
     public void SetTile(int[] position, byte value)
     {
 
-        if (!(position[0] < 0 || position[1] < 0 || position[2] < 0) && (position[0] < size-1 || position[1] < size - 1 || position[2] < size - 1))
+        if (!(position[0] < 0 || position[1] < 0 || position[2] < 0) && (position[0] < size && position[1] < size && position[2] < size))
         {
             tiles[position[0], position[1], position[2]] = value;
         }
