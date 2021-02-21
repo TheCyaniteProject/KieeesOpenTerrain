@@ -23,6 +23,7 @@ public class World : MonoBehaviour
     { // Types of Generation (Mainly for testing)
         Empty,
         LoneGrassTile,
+        StoneStar,
         RandomTiles,
         RandomFilledChunk,
         StoneFilledChunk,
@@ -99,10 +100,46 @@ public class World : MonoBehaviour
             {
                 StartCoroutine(RandomTiles());
             }
+            else if (worldPreset == WorldTypes.StoneStar)
+            {
+                StartCoroutine(StoneStar());
+            }
         }
     }
 
-    IEnumerator RandomTiles() // Generates the entire world.
+    IEnumerator StoneStar() // Generates a star shape made of stone
+    {
+        isRunning = true;
+        ClearChunks();
+
+        GameObject chunk = new GameObject();
+        chunk.name = "Chunk";
+        chunk.transform.SetParent(transform);
+        chunk.transform.localPosition = Vector3.zero;
+        chunk.AddComponent(typeof(Chunk));
+        chunks[0, 0, 0] = chunk.GetComponent<Chunk>();
+        chunk.GetComponent<Chunk>().size = chunkSize;
+        chunk.GetComponent<Chunk>().position = new int[] { 0, 0, 0 };
+        chunk.GetComponent<Chunk>().Populate();
+
+        int[] pos = new int[] { (int)chunkSize / 2, (int)chunkSize / 2, (int)chunkSize / 2 };
+
+        chunk.GetComponent<Chunk>().isEmpty = false;
+        chunk.GetComponent<Chunk>().tiles[pos[0], pos[1], pos[2]] = (byte)Tiles.Stone;
+        chunk.GetComponent<Chunk>().tiles[pos[0], pos[1]+1, pos[2]] = (byte)Tiles.Stone;
+        chunk.GetComponent<Chunk>().tiles[pos[0], pos[1]-1, pos[2]] = (byte)Tiles.Stone;
+        chunk.GetComponent<Chunk>().tiles[pos[0], pos[1], pos[2]+1] = (byte)Tiles.Stone;
+        chunk.GetComponent<Chunk>().tiles[pos[0], pos[1], pos[2]-1] = (byte)Tiles.Stone;
+        chunk.GetComponent<Chunk>().tiles[pos[0]+1, pos[1], pos[2]] = (byte)Tiles.Stone;
+        chunk.GetComponent<Chunk>().tiles[pos[0]-1, pos[1], pos[2]] = (byte)Tiles.Stone;
+
+        chunk.GetComponent<Chunk>().SetNeedsLiteUpdate();
+
+        isRunning = false;
+        yield return null;
+    }
+
+    IEnumerator RandomTiles() // Fills available chunks with random tiles (including air)
     {
         isRunning = true;
         ClearChunks();
@@ -153,7 +190,7 @@ public class World : MonoBehaviour
         yield return null;
     }
 
-    IEnumerator RandomFilledChunk() // Generates the entire world.
+    IEnumerator RandomFilledChunk() // Fills available chunks with random tiles (discluding air)
     {
         isRunning = true;
         ClearChunks();
@@ -204,7 +241,7 @@ public class World : MonoBehaviour
         yield return null;
     }
 
-    IEnumerator StoneFilledChunk() // Generates the entire world.
+    IEnumerator StoneFilledChunk() // Fills available chunks with stone tiles
     {
         isRunning = true;
         ClearChunks();
@@ -256,7 +293,7 @@ public class World : MonoBehaviour
         yield return null;
     }
 
-    IEnumerator GenerateSingleTile() // Generates the entire world.
+    IEnumerator GenerateSingleTile() // Generates a single chunk and sets the middle tile to grass
     {
         isRunning = true;
         ClearChunks();
@@ -280,7 +317,7 @@ public class World : MonoBehaviour
         yield return null;
     }
 
-    IEnumerator GenerateEmpty() // Generates the entire world.
+    IEnumerator GenerateEmpty() // Generates avaiable chunks but doesn't add anything to them
     {
         isRunning = true;
         ClearChunks();

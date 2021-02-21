@@ -19,10 +19,6 @@ public class Tile
 		float size = 0.5f;
 
 
-		Vector3 _LB = new Vector3(-0.25f, 0, 0.25f);
-		Vector3 _RB = new Vector3(0.25f, 0, 0.25f);
-		Vector3 _LF = new Vector3(-0.25f, 0, -0.25f);
-		Vector3 _RF = new Vector3(0.25f, 0, -0.25f);
 
 		Vector3 _TL = new Vector3(0, 0.5f, 0);
 		Vector3 _TR = new Vector3(0, 0.5f, 0);
@@ -43,6 +39,11 @@ public class Tile
 		Vector3 _BFR = new Vector3(0.25f, -0.5f, -0.25f);
 		Vector3 _BBL = new Vector3(-0.25f, -0.5f, 0.25f);
 		Vector3 _BBR = new Vector3(0.25f, -0.5f, 0.25f);
+
+		Vector3 _LB = new Vector3(-0.25f, 0, 0.25f);
+		Vector3 _RB = new Vector3(0.25f, 0, 0.25f);
+		Vector3 _LF = new Vector3(-0.25f, 0, -0.25f);
+		Vector3 _RF = new Vector3(0.25f, 0, -0.25f);
 
 		if (type != (byte)World.Tiles.Empty)
         {
@@ -74,36 +75,6 @@ public class Tile
 				_BFR = new Vector3(0f, -0.5f, 0f);
 			}
 
-			if (world.GetTile(position + new Vector3(0, 1, 0)) != (byte)World.Tiles.Empty) // Top
-            {
-                sides[2] = 0;
-
-				_TL = new Vector3(0, 0, 0);
-				_TR = new Vector3(0, 0, 0);
-				_TF = new Vector3(0, 0, 0);
-				_TB = new Vector3(0, 0, 0);
-
-				_TFL = new Vector3(-0.25f, 0, -0.25f);
-				_TFR = new Vector3(0.25f, 0, -0.25f);
-				_TBL = new Vector3(-0.25f, 0, 0.25f);
-				_TBR = new Vector3(0.25f, 0, 0.25f);
-			}
-
-            if (world.GetTile(position - new Vector3(0, 1, 0)) != (byte)World.Tiles.Empty) // Bottom
-            {
-                sides[3] = 0;
-
-				_BL = new Vector3(0, 0, 0);
-				_BR = new Vector3(0, 0, 0);
-				_BF = new Vector3(0, 0, 0);
-				_BB = new Vector3(0, 0, 0);
-
-				_BFL = new Vector3(-0.25f, 0, -0.25f);
-				_BFR = new Vector3(0.25f, 0, -0.25f);
-				_BBL = new Vector3(-0.25f, 0, 0.25f);
-				_BBR = new Vector3(0.25f, 0, 0.25f);
-            }
-
             if (world.GetTile(position + new Vector3(1, 0, 0)) != (byte)World.Tiles.Empty) // Right
             {
                 sides[4] = 0;
@@ -116,12 +87,6 @@ public class Tile
 				_BFR = new Vector3(0f, -0.5f, 0f);
 				_BBR = new Vector3(0f, -0.5f, 0f);
 
-				if (world.GetTile(position + new Vector3(0, 1, 0)) != (byte)World.Tiles.Empty) // Top
-                {
-
-					//_TFR = new Vector3(0f, 0f, -0.5f);
-					//_TBR = new Vector3(0f, 0f, 0.5f);
-				}
 			}
 
             if (world.GetTile(position - new Vector3(1, 0, 0)) != (byte)World.Tiles.Empty) // Left
@@ -134,11 +99,116 @@ public class Tile
 
 				_BFL = new Vector3(0f, -0.5f, 0f);
 				_BBL = new Vector3(0f, -0.5f, -0f);
+
+				_LB = new Vector3(0, 0, 0);
+				_LF = new Vector3(0, 0, 0);
 			}
 
-			if (world.GetTile(position + new Vector3(1, 0, 1)) != (byte)World.Tiles.Empty) // Back Right Corners
+			if (world.GetTile(position + new Vector3(0, 1, 0)) != (byte)World.Tiles.Empty) // Top
 			{
-				if (world.GetTile(position + new Vector3(0, 0, 1)) != (byte)World.Tiles.Empty && world.GetTile(position + new Vector3(1, 0, 0)) != (byte)World.Tiles.Empty)
+				sides[2] = 0;
+
+				_TL = new Vector3(0, 0, 0);
+				_TR = new Vector3(0, 0, 0);
+				_TF = new Vector3(0, 0, 0);
+				_TB = new Vector3(0, 0, 0);
+
+				_TFL = new Vector3(-0.25f, 0, -0.25f);
+				_TFR = new Vector3(0.25f, 0, -0.25f);
+				_TBL = new Vector3(-0.25f, 0, 0.25f);
+				_TBR = new Vector3(0.25f, 0, 0.25f);
+
+				if (world.GetTile(position + new Vector3(1, 0, 0)) != (byte)World.Tiles.Empty) // Right
+				{
+					_RB = new Vector3(0, 0, 0);
+					_RF = new Vector3(0, 0, 0);
+
+					_TBR = new Vector3(0f, 0f, 0.5f);
+					_TFR = new Vector3(0f, 0f, -0.5f);
+				}
+				if (world.GetTile(position - new Vector3(1, 0, 0)) != (byte)World.Tiles.Empty) // Left
+				{
+					_LB = new Vector3(0, 0, 0);
+					_LF = new Vector3(0, 0, 0);
+
+					_TBL = new Vector3(0f, 0f, 0.5f);
+					_TFL = new Vector3(0f, 0f, -0.5f);
+				}
+
+
+				if (world.GetTile(position - new Vector3(0, 0, 1)) != (byte)World.Tiles.Empty) // Front
+				{
+					_RF = new Vector3(0, 0, 0);
+					_LF = new Vector3(0, 0, 0);
+
+					_TFR = new Vector3(0.5f, 0f, 0f);
+					_TFL = new Vector3(-0.5f, 0f, 0f);
+				}
+
+				if (world.GetTile(position + new Vector3(0, 0, 1)) != (byte)World.Tiles.Empty) // Back
+				{
+					_RB = new Vector3(0, 0, 0);
+					_LB = new Vector3(0, 0, 0);
+
+					_TBR = new Vector3(0.5f, 0f, 0f);
+					_TBL = new Vector3(-0.5f, 0f, 0f);
+				}
+			}
+
+			if (world.GetTile(position - new Vector3(0, 1, 0)) != (byte)World.Tiles.Empty) // Bottom
+			{
+				sides[3] = 0;
+
+				_BL = new Vector3(0, 0, 0);
+				_BR = new Vector3(0, 0, 0);
+				_BF = new Vector3(0, 0, 0);
+				_BB = new Vector3(0, 0, 0);
+
+				_BFL = new Vector3(-0.25f, 0, -0.25f);
+				_BFR = new Vector3(0.25f, 0, -0.25f);
+				_BBL = new Vector3(-0.25f, 0, 0.25f);
+				_BBR = new Vector3(0.25f, 0, 0.25f);
+
+				if (world.GetTile(position + new Vector3(1, 0, 0)) != (byte)World.Tiles.Empty) // Right
+				{
+					_RB = new Vector3(0, 0, 0);
+					_RF = new Vector3(0, 0, 0);
+
+					_BBR = new Vector3(0f, 0f, 0.5f);
+					_BFR = new Vector3(0f, 0f, -0.5f);
+				}
+				if (world.GetTile(position - new Vector3(1, 0, 0)) != (byte)World.Tiles.Empty) // Left
+				{
+					_LB = new Vector3(0, 0, 0);
+					_LF = new Vector3(0, 0, 0);
+
+					_BBL = new Vector3(0f, 0f, 0.5f);
+					_BFL = new Vector3(0f, 0f, -0.5f);
+				}
+
+
+				if (world.GetTile(position - new Vector3(0, 0, 1)) != (byte)World.Tiles.Empty) // Front
+				{
+					_RF = new Vector3(0, 0, 0);
+					_LF = new Vector3(0, 0, 0);
+
+					_BFR = new Vector3(0.5f, 0f, 0f);
+					_BFL = new Vector3(-0.5f, 0f, 0f);
+				}
+
+				if (world.GetTile(position + new Vector3(0, 0, 1)) != (byte)World.Tiles.Empty) // Back
+				{
+					_RB = new Vector3(0, 0, 0);
+					_LB = new Vector3(0, 0, 0);
+
+					_BBR = new Vector3(0.5f, 0f, 0f);
+					_BBL = new Vector3(-0.5f, 0f, 0f);
+				}
+			}
+
+			if (world.GetTile(position + new Vector3(1, 0, 1)) != (byte)World.Tiles.Empty) // Back Right Corner
+			{
+				if (world.GetTile(position + new Vector3(0, 0, 1)) != (byte)World.Tiles.Empty && world.GetTile(position + new Vector3(1, 0, 0)) != (byte)World.Tiles.Empty) // Back
 				{
 					_TBR = new Vector3(0f, 0f, 0f);
 					_BBR = new Vector3(0f, 0f, 0f);
@@ -170,6 +240,76 @@ public class Tile
 				{
 					_TFR = new Vector3(0f, 0f, 0f);
 					_BFR = new Vector3(0f, 0f, 0f);
+				}
+			}
+
+
+			if (world.GetTile(position + new Vector3(1, 1, 0)) != (byte)World.Tiles.Empty) // Top Right Corner
+			{
+				if (world.GetTile(position + new Vector3(0, 1, 0)) != (byte)World.Tiles.Empty && world.GetTile(position + new Vector3(1, 0, 0)) != (byte)World.Tiles.Empty) // Back
+				{
+					_TBR = new Vector3(0f, 0f, 0f);
+					_TFR = new Vector3(0f, 0f, 0f);
+				}
+			}
+			if (world.GetTile(position + new Vector3(1, -1, 0)) != (byte)World.Tiles.Empty) // Bottom Right Corner
+			{
+				if (world.GetTile(position + new Vector3(0, -1, 0)) != (byte)World.Tiles.Empty && world.GetTile(position + new Vector3(1, 0, 0)) != (byte)World.Tiles.Empty) // Back
+				{
+					_BBR = new Vector3(0f, 0f, 0f);
+					_BFR = new Vector3(0f, 0f, 0f);
+				}
+			}
+
+			if (world.GetTile(position + new Vector3(-1, 1, 0)) != (byte)World.Tiles.Empty) // Top Left Corner
+			{
+				if (world.GetTile(position + new Vector3(0, 1, 0)) != (byte)World.Tiles.Empty && world.GetTile(position + new Vector3(-1, 0, 0)) != (byte)World.Tiles.Empty) // Back
+				{
+					_TBL = new Vector3(0f, 0f, 0f);
+					_TFL = new Vector3(0f, 0f, 0f);
+				}
+			}
+			if (world.GetTile(position + new Vector3(-1, -1, 0)) != (byte)World.Tiles.Empty) // Bottom Left Corner
+			{
+				if (world.GetTile(position + new Vector3(0, -1, 0)) != (byte)World.Tiles.Empty && world.GetTile(position + new Vector3(-1, 0, 0)) != (byte)World.Tiles.Empty) // Back
+				{
+					_BBL = new Vector3(0f, 0f, 0f);
+					_BFL = new Vector3(0f, 0f, 0f);
+				}
+			}
+
+
+			if (world.GetTile(position + new Vector3(0, 1, 1)) != (byte)World.Tiles.Empty) // Top Back Corner
+			{
+				if (world.GetTile(position + new Vector3(0, 1, 0)) != (byte)World.Tiles.Empty && world.GetTile(position + new Vector3(0, 0, 1)) != (byte)World.Tiles.Empty) // Back
+				{
+					_TBR = new Vector3(0f, 0f, 0f);
+					_TBL = new Vector3(0f, 0f, 0f);
+				}
+			}
+			if (world.GetTile(position + new Vector3(0, -1, 1)) != (byte)World.Tiles.Empty) // Bottom Back Corner
+			{
+				if (world.GetTile(position + new Vector3(0, -1, 0)) != (byte)World.Tiles.Empty && world.GetTile(position + new Vector3(0, 0, 1)) != (byte)World.Tiles.Empty) // Back
+				{
+					_BBR = new Vector3(0f, 0f, 0f);
+					_BBL = new Vector3(0f, 0f, 0f);
+				}
+			}
+
+			if (world.GetTile(position + new Vector3(0, 1, -1)) != (byte)World.Tiles.Empty) // Top Front Corner
+			{
+				if (world.GetTile(position + new Vector3(0, 1, 0)) != (byte)World.Tiles.Empty && world.GetTile(position + new Vector3(0, 0, -1)) != (byte)World.Tiles.Empty) // Back
+				{
+					_TFR = new Vector3(0f, 0f, 0f);
+					_TFL = new Vector3(0f, 0f, 0f);
+				}
+			}
+			if (world.GetTile(position + new Vector3(0, -1, -1)) != (byte)World.Tiles.Empty) // Bottom Front Corner
+			{
+				if (world.GetTile(position + new Vector3(0, -1, 0)) != (byte)World.Tiles.Empty && world.GetTile(position + new Vector3(0, 0, -1)) != (byte)World.Tiles.Empty) // Back
+				{
+					_BFR = new Vector3(0f, 0f, 0f);
+					_BFL = new Vector3(0f, 0f, 0f);
 				}
 			}
 
@@ -234,14 +374,14 @@ public class Tile
 			float ySize = 1f / 6f;
 
 			List<Vector2> uvs = new List<Vector2>();
-			if (sides[0] == 1) // Front
+			if (sides[1] == 1) // Front
 			{
 				uvs.AddRange(new Vector2[] { new Vector2(xSize * 4, ySize * 6), new Vector2(xSize * 4, ySize * 5), new Vector2(xSize * 3, ySize * 5), new Vector2(xSize * 3, ySize * 6) });
 				uvs.AddRange(new Vector2[] { new Vector2(xSize * 4, ySize * 5), new Vector2(xSize * 4, ySize * 4), new Vector2(xSize * 3, ySize * 4), new Vector2(xSize * 3, ySize * 5) });
 				uvs.AddRange(new Vector2[] { new Vector2(xSize * 3, ySize * 5), new Vector2(xSize * 3, ySize * 4), new Vector2(xSize * 2, ySize * 4), new Vector2(xSize * 2, ySize * 5) });
 				uvs.AddRange(new Vector2[] { new Vector2(xSize * 3, ySize * 6), new Vector2(xSize * 3, ySize * 5), new Vector2(xSize * 2, ySize * 5), new Vector2(xSize * 2, ySize * 6) });
 			}
-			if (sides[1] == 1) // Back
+			if (sides[0] == 1) // Back
 			{
 				uvs.AddRange(new Vector2[] { new Vector2(xSize * 2, ySize * 0), new Vector2(xSize * 2, ySize * 1), new Vector2(xSize * 3, ySize * 1), new Vector2(xSize * 3, ySize * 0) });
 				uvs.AddRange(new Vector2[] { new Vector2(xSize * 2, ySize * 1), new Vector2(xSize * 2, ySize * 2), new Vector2(xSize * 3, ySize * 2), new Vector2(xSize * 3, ySize * 1) });

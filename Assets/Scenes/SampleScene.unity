@@ -329,12 +329,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilePosition: 
   chunkPosition: 
-  currentTile:
-    type: 0
-    position: 
-    heights: []
-    sides: 000000000000000000000000000000000000000000000000
-    chunk: {fileID: 0}
+  currentTile: 0
 --- !u!4 &1701492840
 Transform:
   m_ObjectHideFlags: 0
@@ -380,7 +375,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chunkSize: 8
   maxWorldSize: {x: 3, y: 3}
-  isRunning: 0
   renderDistance: 2
   tilePresets:
   - tile: 1
@@ -389,8 +383,9 @@ MonoBehaviour:
     material: {fileID: 2100000, guid: 421238dffcdfb604a89ac013b4edbb06, type: 2}
   - tile: 3
     material: {fileID: 2100000, guid: b8d6c806f3479c24e9b23c093b0717fc, type: 2}
-  worldPreset: 2
+  worldPreset: 1
   generate: 0
+  isRunning: 0
 --- !u!4 &1785618316
 Transform:
   m_ObjectHideFlags: 0
