@@ -15,14 +15,14 @@ public class Chunk : MonoBehaviour
 
     public int[] position;
 
-    public bool isEmpty = false;
+    public bool isEmpty = true;
 
-    public bool needsUpdate = false;
+    public bool needsUpdate = true;
     public bool needsLiteUpdate = false;
 
     private Dictionary<byte, GameObject> layers = new Dictionary<byte, GameObject>();
 
-    private void Start()
+    void Init()
     {
         foreach (World.TilePreset tilePreset in World.Instance.tilePresets)
         {
@@ -38,14 +38,14 @@ public class Chunk : MonoBehaviour
         }
     }
 
-    private void Update()
+    void Update()
     {
         if (needsUpdate)
         {
-            needsUpdate = false;
-            RenderNeighbours();
+            //needsUpdate = false;
+            //RenderNeighbours();
         }
-        if (needsLiteUpdate)
+        if (needsLiteUpdate || needsUpdate)
         {
             needsLiteUpdate = false;
             RenderChunk();
@@ -54,6 +54,7 @@ public class Chunk : MonoBehaviour
 
     public void Generate()
     {
+        Init();
         Populate(); // Initializes tiles
 
 
@@ -61,7 +62,7 @@ public class Chunk : MonoBehaviour
 
         float thresh = 0.35f;
 
-        int topLevel = 25;
+        int topLevel = World.Instance.surfaceHeight;
 
         for (int x = 0; x <= size - 1; x++)
         {
@@ -158,7 +159,7 @@ public class Chunk : MonoBehaviour
         //if (GetComponent<MeshFilter>().sharedMesh != null)
         //DestroyImmediate(GetComponent<MeshFilter>().sharedMesh);
         Dictionary<byte, CombineInstance[]> combines = new Dictionary<byte, CombineInstance[]>();
-        foreach (byte tile in layers.Keys)
+        foreach (byte tile in this.layers.Keys)
         {
             combines[tile] = new CombineInstance[size*size*size];
         }
@@ -198,7 +199,7 @@ public class Chunk : MonoBehaviour
     public byte GetTile(Vector3 position) { return GetTile(new int[] { (int)position.x, (int)position.y, (int)position.z }); }
     public byte GetTile(int[] position)
     {
-        if (!(position[0] < 0 || position[1] < 0 || position[2] < 0) && (position[0] < size && position[1] < size && position[2] < size))
+        if (tiles !=null && !(position[0] < 0 || position[1] < 0 || position[2] < 0) && (position[0] < size && position[1] < size && position[2] < size))
         {
             return tiles[position[0], position[1], position[2]];
         }
@@ -209,7 +210,7 @@ public class Chunk : MonoBehaviour
     public void SetTile(int[] position, byte value)
     {
 
-        if (!(position[0] < 0 || position[1] < 0 || position[2] < 0) && (position[0] < size && position[1] < size && position[2] < size))
+        if (tiles !=null && !(position[0] < 0 || position[1] < 0 || position[2] < 0) && (position[0] < size && position[1] < size && position[2] < size))
         {
             tiles[position[0], position[1], position[2]] = value;
         }

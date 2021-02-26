@@ -1,15 +1,16 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
+using System.Collections.Specialized;
 using UnityEngine;
 
 //[ExecuteInEditMode]
 public class World : MonoBehaviour
 {
     public static World Instance;
+    public int surfaceHeight = 20;
     public int chunkSize = 16;
     public Vector2 maxWorldSize = new Vector2(3, 3); // in chunks
     public Chunk[,,] chunks;
-    public int renderDistance = 2; // TODO ----------
+    //public int renderDistance = 2; // TODO ----------
 
     public TilePreset[] tilePresets;
 
@@ -54,6 +55,21 @@ public class World : MonoBehaviour
     private void Start()
     {
         Instance = this;
+
+        OrderedDictionary orderedDictionary = new OrderedDictionary();
+
+        int index = 0;
+        for (int x = 0; x <= chunkSize - 1; x++)
+        {
+            for (int y = 0; y <= chunkSize - 1; y++)
+            {
+                for (int z = 0; z <= chunkSize - 1; z++)
+                {
+                    //Debug.Log(Mathf.Sqrt(x*x+y*y+z*z));
+                    orderedDictionary.Add(Mathf.Sqrt(x*x+y*y+z*z).ToString(), index.ToString());
+                }
+            }
+        }
     }
 
     void Update()
@@ -366,7 +382,6 @@ public class World : MonoBehaviour
                     chunks[x, y, z].size = chunkSize;
                     chunks[x, y, z].position = new int[] { x, y, z };
                     chunks[x, y, z].Generate();
-                    yield return null;
                 }
             }
         }
@@ -377,13 +392,12 @@ public class World : MonoBehaviour
             {
                 for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
                 {
-                    if (!chunks[x, y, z].isEmpty)
-                        chunks[x, y, z].SetNeedsLiteUpdate();
-                    yield return null;
+                    yield return new WaitForEndOfFrame();
+                    if (chunks != null && chunks[x, y, z] != null && !chunks[x, y, z].isEmpty && chunks[x, y, z].needsUpdate)
+                        chunks[x, y, z].RenderChunk();
                 }
             }
         }
-
 
         isRunning = false;
     }
