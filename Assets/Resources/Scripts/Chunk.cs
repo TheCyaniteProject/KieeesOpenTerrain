@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 [System.Serializable]
@@ -17,12 +18,12 @@ public class Chunk : MonoBehaviour
 
     public bool isEmpty = true;
 
-    public bool needsUpdate = true;
+    public bool needsUpdate = false;
     public bool needsLiteUpdate = false;
 
     private Dictionary<byte, GameObject> layers = new Dictionary<byte, GameObject>();
 
-    void Init()
+    async void Init()
     {
         foreach (World.TilePreset tilePreset in World.Instance.tilePresets)
         {
@@ -36,6 +37,8 @@ public class Chunk : MonoBehaviour
             layer.gameObject.GetComponent<Renderer>().material = tilePreset.material;
             layer.gameObject.name = tilePreset.tile.ToString();
         }
+
+        //await Task.Run(() => { RenderChunk(); }); ;
     }
 
     void Update()
@@ -48,7 +51,7 @@ public class Chunk : MonoBehaviour
         if (needsLiteUpdate || needsUpdate)
         {
             needsLiteUpdate = false;
-            RenderChunk();
+            //await Task.Run(() => { RenderChunk(); }); ;
         }
     }
 
@@ -114,7 +117,15 @@ public class Chunk : MonoBehaviour
         this.needsLiteUpdate = true;
     }
 
-
+    public void DerenderChunk()
+    {
+        foreach (GameObject layer in layers.Values)
+        {
+            Destroy(layer.GetComponent<MeshFilter>().sharedMesh);
+            Destroy(layer.GetComponent<MeshCollider>().sharedMesh);
+        }
+        
+    }
     public void RenderNeighbours()
     {
         RenderChunk();

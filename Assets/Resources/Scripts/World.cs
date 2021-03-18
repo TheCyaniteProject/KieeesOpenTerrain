@@ -1,24 +1,29 @@
 ﻿using System.Collections;
-using System.Collections.Specialized;
+using System.Collections.Generic;
+using Unity.Jobs;
+using Unity.Burst;
+using Unity.Collections;
 using UnityEngine;
 
 //[ExecuteInEditMode]
 public class World : MonoBehaviour
 {
     public static World Instance;
+
+    public Transform player;
+    [Space]
     public int surfaceHeight = 20;
     public int chunkSize = 16;
+    public int renderDistance = 2;
     public Vector2 maxWorldSize = new Vector2(3, 3); // in chunks
     public Chunk[,,] chunks;
-    //public int renderDistance = 2; // TODO ----------
-
     public TilePreset[] tilePresets;
-
     public WorldTypes worldPreset = WorldTypes.Landscape;
-
     public Generation generate = Generation.Select;
-
     public bool isRunning = false;
+    [Space]
+    [SerializeField]
+    private Chunk[] loadedChunks = new Chunk[] { };
 
     public enum WorldTypes
     { // Types of Generation (Mainly for testing)
@@ -55,21 +60,6 @@ public class World : MonoBehaviour
     private void Start()
     {
         Instance = this;
-
-        OrderedDictionary orderedDictionary = new OrderedDictionary();
-
-        int index = 0;
-        for (int x = 0; x <= chunkSize - 1; x++)
-        {
-            for (int y = 0; y <= chunkSize - 1; y++)
-            {
-                for (int z = 0; z <= chunkSize - 1; z++)
-                {
-                    //Debug.Log(Mathf.Sqrt(x*x+y*y+z*z));
-                    orderedDictionary.Add(Mathf.Sqrt(x*x+y*y+z*z).ToString(), index.ToString());
-                }
-            }
-        }
     }
 
     void Update()
@@ -84,6 +74,83 @@ public class World : MonoBehaviour
             generate = World.Generation.Select;
             ClearChunks();
         }
+        UpdateLoadedChunks();
+    }
+
+    private JobHandle ChunkRendererJob()
+    {
+        ChunkRenderer renderer = new ChunkRenderer();
+       
+        return renderer.Schedule();
+    }
+
+    public void UpdateLoadedChunks()
+    {
+        int[] tilePosition = new int[] { (int)player.position.x, (int)player.position.y, (int)player.position.z };
+        List<Chunk> _chunks = new List<Chunk>();
+        List<Chunk> _loadedChunks = new List<Chunk>();
+        Chunk[] loadableChunks = GetLoadableChunks(tilePosition);
+        if (loadableChunks == null) return;
+        _chunks.AddRange(loadableChunks);
+
+        foreach (Chunk chunk in this.loadedChunks) // Removes old chunks
+        {
+            if (chunk != null)
+            {
+                if (_chunks.Contains(chunk))
+                {
+                    _loadedChunks.Add(chunk);
+                }
+                else
+                {
+                    chunk.DerenderChunk();
+                }
+            }
+        }
+
+        NativeList<JobHandle> chunkRenderers = new NativeList<JobHandle>(Allocator.Temp);
+        foreach (Chunk chunk in _chunks) // Adds new chunks
+        {
+            if (chunk != null)
+            {
+                if (!_loadedChunks.Contains(chunk))
+                {
+                    _loadedChunks.Add(chunk);
+                    chunkRenderers.Add(ChunkRendererJob());
+                    //ChunkRendererJob()
+                }
+            }
+        }
+        JobHandle.CompleteAll(chunkRenderers);
+
+        this.loadedChunks = _loadedChunks.ToArray();
+    }
+
+    public Chunk[] GetLoadableChunks(int[] tilePosition)
+    {
+        Chunk chunk = GetChunkFromWorldPosition(tilePosition);
+        if (chunk == null) return null;
+        int[] chunkPosition = chunk.position;
+        List<Chunk> _chunks = new List<Chunk>();
+        for (int x = -renderDistance; x <= renderDistance; x++)
+        {
+            for (int y = -renderDistance; y <= renderDistance; y++)
+            {
+                for (int z = -renderDistance; z <= renderDistance; z++)
+                {
+                    if (chunks != null)
+                    {
+                        _chunks.Add(GetChunk(new int[] { x + chunkPosition[0], y + chunkPosition[1], z + chunkPosition[2] }));
+                    }
+                }
+            }
+        }
+        return _chunks.ToArray();
+    }
+
+    public Chunk[] GetLoadedChunks(int[] tilePosition)
+    {
+        return loadedChunks;
     }
 
     private void PreGenerate()
@@ -149,7 +216,7 @@ public class World : MonoBehaviour
         chunk.GetComponent<Chunk>().tiles[pos[0]+1, pos[1], pos[2]] = (byte)Tiles.Stone;
         chunk.GetComponent<Chunk>().tiles[pos[0]-1, pos[1], pos[2]] = (byte)Tiles.Stone;
 
-        chunk.GetComponent<Chunk>().SetNeedsLiteUpdate();
+        //chunk.GetComponent<Chunk>().SetNeedsLiteUpdate();
 
         isRunning = false;
         yield return null;
@@ -196,7 +263,7 @@ public class World : MonoBehaviour
             {
                 for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
                 {
-                    chunks[x, y, z].SetNeedsLiteUpdate();
+                    //chunks[x, y, z].SetNeedsLiteUpdate();
                     yield return null;
                 }
             }
@@ -247,7 +314,7 @@ public class World : MonoBehaviour
             {
                 for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
                 {
-                    chunks[x, y, z].SetNeedsLiteUpdate();
+                    //chunks[x, y, z].SetNeedsLiteUpdate();
                     yield return null;
                 }
             }
@@ -299,7 +366,7 @@ public class World : MonoBehaviour
             {
                 for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
                 {
-                    chunks[x, y, z].SetNeedsLiteUpdate();
+                    //chunks[x, y, z].SetNeedsLiteUpdate();
                     yield return null;
                 }
             }
@@ -327,7 +394,7 @@ public class World : MonoBehaviour
         chunk.GetComponent<Chunk>().tiles[(int)chunkSize / 2, (int)chunkSize / 2, (int)chunkSize / 2] = (byte)Tiles.Grass;
         chunk.GetComponent<Chunk>().isEmpty = false;
 
-        chunk.GetComponent<Chunk>().SetNeedsLiteUpdate();
+        //chunk.GetComponent<Chunk>().SetNeedsLiteUpdate();
 
         isRunning = false;
         yield return null;
@@ -382,6 +449,7 @@ public class World : MonoBehaviour
                     chunks[x, y, z].size = chunkSize;
                     chunks[x, y, z].position = new int[] { x, y, z };
                     chunks[x, y, z].Generate();
+                    yield return null;
                 }
             }
         }
@@ -392,9 +460,9 @@ public class World : MonoBehaviour
             {
                 for (int z = 0; z <= (int)maxWorldSize.x - 1; z++)
                 {
-                    yield return new WaitForEndOfFrame();
-                    if (chunks != null && chunks[x, y, z] != null && !chunks[x, y, z].isEmpty && chunks[x, y, z].needsUpdate)
-                        chunks[x, y, z].RenderChunk();
+                    //yield return new WaitForEndOfFrame();
+                    //if (chunks != null && chunks[x, y, z] != null && !chunks[x, y, z].isEmpty && chunks[x, y, z].needsUpdate)
+                        //chunks[x, y, z].RenderChunk();
                 }
             }
         }
@@ -481,4 +549,21 @@ public class World : MonoBehaviour
     }
 
     
+}
+
+
+/* 
+ * Combile Mesh data into list using ChunkRenderer.Execute, and then create Mesh inside ChunkRenderer in a new function
+ */
+
+//[BurstCompile]
+public struct ChunkRenderer : IJob
+{
+    //public int[] chunkPos;
+
+    public void Execute()
+    {
+        //chunkPos = new int[] { 0, 0, 0 };
+        World.Instance.GetChunk(new int[] { 0, 0, 0 }).RenderChunk();
+    }
 }
